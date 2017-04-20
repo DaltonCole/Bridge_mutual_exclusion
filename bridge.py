@@ -40,8 +40,10 @@ class Person:
 			self.walking_speed = randint(25,50) / 50
 		elif walking_speed == 'Fast':
 			self.walking_speed = randint(100, 200) / 50
-		else:
+		elif walking_speed == 'Super Fast':
 			self.walking_speed = randint(500, 1000) / 50
+		elif walking_speed == 'Blazing':
+			self.walking_speed = randint(1000, 5000) / 50
 
 	"""Sets the side the person is going towards
 
@@ -127,7 +129,7 @@ class Bridge:
 		# Make drop Down menu
 		default_walking_speed = StringVar(self.root)
 		default_walking_speed.set(self.speed)
-		walking_speed = OptionMenu(self.root, default_walking_speed, 'Slow', 'Medium', 'Fast', 'Super Fast')
+		walking_speed = OptionMenu(self.root, default_walking_speed, 'Slow', 'Medium', 'Fast', 'Super Fast', 'Blazing')
 		walking_speed.grid(row=0, column=0)
 		# Make button to confirm drop down menu
 		set_walking_speed = lambda: self.set_walking_speed(default_walking_speed.get())
