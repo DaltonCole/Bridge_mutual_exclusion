@@ -10,7 +10,6 @@ class Person:
 		self.set_speed(walking_speed)
 		self.side = 0 # 0 if on or going to left side, 1 if on or going to right side
 		self.time_stamp = None
-		self.to_ack = []
 		self.acked = 0
 
 
@@ -19,8 +18,10 @@ class Person:
 			self.walking_speed = randint(1,10) / 50
 		elif walking_speed == 'Medium':
 			self.walking_speed = randint(10,25) / 50
+		elif walking_speed == 'Fast':
+			self.walking_speed = randint(100, 200) / 50
 		else:
-			self.walking_speed = randint(25, 100) / 50
+			self.walking_speed = randint(500, 1000) / 50
 	def set_side(self, side):
 		self.side = side
 
@@ -28,38 +29,32 @@ class Person:
 class Bridge:
 	def __init__(self, root):
 		self.root = root
-		self.speed = 'Fast'
-		self.algorithm = 'Ricart & Agrawalas'
-		self.count = 2
+		self.speed = 'Super Fast'
+		self.algorithm = 'Personal' #'Ricart & Agrawalas'
+		self.count = 10
 		self.people = []
-		self.c_size = 20 #c ircle size
-		self.points = ((100, 450), (100, 50), (350, 250), (650, 250), (900, 50), (900, 450)) # 6 points of the triangles
-
-		#p = Canvas(self.root)
-		#p.create_polygon([150,75,225,0,300,75,225,150], outline='gray', fill='gray', width=2)
-		#p.pack()
-
+		self.c_size = 10 #c ircle size
+		#self.points = ((100, 450), (100, 50), (350, 250), (650, 250), (900, 50), (900, 450)) # 6 points of the triangles
+		self.points = ((100, 450), (100, 50), (900, 50), (900, 450))
+		self.people_on_bridge = 0
 
 		self.make_canvas()
 		self.make_menues()
 		self.make_bridge()
 		self.make_people()
 		self.move_people()
-		#self.make_canvas()
-		#self.make_circle()
 
 	def make_canvas(self):
 		self.root.title("Test")
-		#self.root.resizable(False, False)
+		self.root.resizable(False, False)
 		self.canvas = Canvas(self.root, width = 1000, height = 500, background='white')
-		#self.canvas.pack()
 
 	def make_menues(self):
 		### Walking Speed ###
 		# Make drop Down menu
 		default_walking_speed = StringVar(self.root)
 		default_walking_speed.set(self.speed)
-		walking_speed = OptionMenu(self.root, default_walking_speed, 'Slow', 'Medium', 'Fast')
+		walking_speed = OptionMenu(self.root, default_walking_speed, 'Slow', 'Medium', 'Fast', 'Super Fast')
 		walking_speed.grid(row=0, column=0)
 		# Make button to confirm drop down menu
 		set_walking_speed = lambda: self.set_walking_speed(default_walking_speed.get())
@@ -90,22 +85,15 @@ class Bridge:
 
 	def make_bridge(self):
 		self.canvas.grid(row=2,column=0,columnspan=3)
-		#self.canvas.create_rectangle(80, 80, 120, 120, fill="blue")
-		#self.canvas.create_rectangle(80, 80, 120, 120)
 		self.canvas.create_polygon((100, 450, 350, 250, 100, 50), fill='white', outline='black')
 		self.canvas.create_polygon((900, 450, 650, 250, 900, 50), fill='white', outline='black')
 		self.canvas.create_line((350,250, 650,250))
-		#self.canvas.move(triangle, 200,100)
-		#self.canvas.move(line, 100,100) # (item, dx, dy) dx is offset from current position
 
 	def make_people(self):
 		self.colors = ['white', 'black', 'red', 'green', 'blue', 'cyan', 'yellow', 'magenta']
 
 		for i in range(self.count):
 			sp = choice(self.points) # Starting point
-			#shape = self.canvas.create_oval((100 - self.c_size, 450 + self.c_size, 100 + self.c_size, 450 - self.c_size), fill=choice(self.colors))
-			#shape = self.canvas.create_oval((900 - self.c_size, 50 + self.c_size, 900 + self.c_size, 50 - self.c_size), fill=choice(self.colors))
-			#shape = self.canvas.create_oval((650 - self.c_size, 250 + self.c_size, 650 + self.c_size, 250 - self.c_size), fill=choice(self.colors))
 			shape = self.canvas.create_oval((sp[0] - self.c_size, sp[1] + self.c_size, sp[0] + self.c_size, sp[1] - self.c_size), fill=self.random_color())
 			self.people.append(Person(shape, self.speed))
 
@@ -113,10 +101,6 @@ class Bridge:
 		try:
 			for i in self.people:
 				coords = self.canvas.coords(i.person)
-				if i.time_stamp != None:
-					#print(i.time_stamp)
-					pass
-				#print(coords)
 
 				### 1-2 ###
 				# On top of right triangle, go South East
@@ -133,6 +117,7 @@ class Bridge:
 				elif(coords[0] == 650 - self.c_size and coords[1] == 250 - self.c_size and i.side == 1):
 					self.canvas.move(i.person, (1 * i.walking_speed), (-.8 * i.walking_speed))
 					i.time_stamp = None # Reset Time stamp
+					self.people_on_bridge -= 1
 
 				### 4-5 ###
 				# Move down on straight triangle
@@ -154,6 +139,7 @@ class Bridge:
 				elif(coords[0] == 350 - self.c_size and coords[1] == 250 - self.c_size and i.side == 0):
 					self.canvas.move(i.person, (-1 * i.walking_speed), (.8 * i.walking_speed))
 					i.time_stamp = None # Reset Time stamp
+					self.people_on_bridge += 1
 
 				### 8-1 ###
 				# Move up straight away triangle
@@ -247,16 +233,19 @@ class Bridge:
 	def cross_bridge(self, person):
 		if(self.algorithm == 'Ricart & Agrawalas'):
 			if(self.bridge_single_person(person)):
-				print('yep')
 				if(person.side == 1):
+					self.people_on_bridge += 1
 					self.canvas.move(person.person, person.walking_speed, 0)
 				else:
+					self.people_on_bridge -= 1
 					self.canvas.move(person.person, -person.walking_speed, 0)
 		else:
 			if(self.bridge_multiple_people(person)):
 				if(person.side == 1):
+					self.people_on_bridge += 1
 					self.canvas.move(person.person, person.walking_speed, 0)
 				else:
+					self.people_on_bridge -= 1
 					self.canvas.move(person.person, -person.walking_speed, 0)
 
 	def bridge_single_person(self, person):
@@ -264,7 +253,7 @@ class Bridge:
 		if person.time_stamp == None:
 			person.time_stamp = time()
 
-		# Check each process's time stamp #
+		# Check each process's time stamp
 		for i in self.people:
 			# If no time stamp, recieve ack
 			if i.time_stamp == None:
@@ -273,8 +262,6 @@ class Bridge:
 			elif i.time_stamp > person.time_stamp:
 				person.acked += 1
 
-		print(person.acked)
-
 		if(person.acked == int(self.count) - 1):
 			person.acked = 0
 			return True
@@ -282,16 +269,48 @@ class Bridge:
 		person.acked = 0
 		return False
 
+	# If you are moving in the same direction as the person with the lowest
+	# time stamp, then you may cross the bridge
 	def bridge_multiple_people(self, person):
-		pass
+		# Set time stamp
+		if person.time_stamp == None:
+			person.time_stamp = time()
 
-	def set_walking_speed(self, walking_speed):
-		self.walking_speed = walking_speed
+		# lowest time stamp [time stamp, direction]
+		lowest_time = [person.time_stamp, person.side]
 
 		for i in self.people:
-			i.set_speed(self.walking_speed)
+			if i.time_stamp != None:
+				if i.time_stamp < lowest_time[0]:
+					lowest_time[0] = i.time_stamp
+					lowest_time[1] = i.side
 
-		print(self.walking_speed)
+		# If we are not on the same side as the person with the lowest
+		# time stamp, return false
+		if(person.side != lowest_time[1]):
+			return False
+
+		# If no one is on the bridge, cross it
+		if(self.people_on_bridge == 0):
+			return True
+
+		# If someone of your affinity is on the bridge (and the person with the lowest time stamp
+		# is on your side), cross the bridge
+		if(self.people_on_bridge < 0 and person.side == 0):
+			return True
+		elif(self.people_on_bridge > 0 and person.side == 1):
+			return True
+
+		return False
+
+
+	def set_walking_speed(self, walking_speed):
+		self.speed = walking_speed
+
+		for i in self.people:
+			i.set_speed(self.speed)
+
+		print(self.speed)
 
 	def set_algorithm(self, algorithm):
 		self.algorithm = algorithm
@@ -300,15 +319,25 @@ class Bridge:
 	def set_count(self, count):
 		self.count = count
 
+		print('Initally:',self.people_on_bridge)
+
 		while(int(self.count) > len(self.people)):
 			sp = choice(self.points) # start point
 			shape = self.canvas.create_oval((sp[0] - self.c_size, sp[1] + self.c_size, sp[0] + self.c_size, sp[1] - self.c_size), fill=self.random_color())
 			self.people.append(Person(shape, self.speed))
 		while(int(self.count) < len(self.people)):
 			shape = choice(self.people)
+			coords = self.canvas.coords(shape.person)
+			if(coords[0] > 350 - self.c_size and coords[0] < 650 - self.c_size):
+				print(self.people_on_bridge)
+				if shape.side == 1:
+					self.people_on_bridge -= 1
+				else:
+					self.people_on_bridge += 1
 			self.people.remove(shape)
 			self.canvas.delete(shape.person)
 
+		print('Finally:',self.people_on_bridge)
 		print(self.count)
 
 	def random_color(self):
