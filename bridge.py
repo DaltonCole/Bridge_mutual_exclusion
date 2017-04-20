@@ -383,6 +383,9 @@ class Bridge:
 		# Number of people who have said it's okay to cross the bridge
 		acked = 0
 
+		# lowest time stamp [time stamp, direction]. Needed if time.time() is not precise enough
+		lowest_time = [person.time_stamp, person.side]
+
 		# Check each process's time stamp
 		for i in self.people:
 			# If no time stamp, receive ack
@@ -392,6 +395,12 @@ class Bridge:
 			elif i.time_stamp > person.time_stamp:
 				acked += 1
 
+			# Get lowest time stamp
+			if i.time_stamp != None:
+				if i.time_stamp < lowest_time[0]:
+					lowest_time[0] = i.time_stamp
+					lowest_time[1] = i.side
+
 			# If someone is already on the bridge, return false
 			# NOTE: This is only necessary when switching between protocols
 			coords = self.canvas.coords(i.person)
@@ -400,6 +409,9 @@ class Bridge:
 
 		# If everyone else acked you, then you may cross the bridge
 		if(acked == int(self.count) - 1):
+			return True
+
+		if(lowest_time[0] == person.time_stamp):
 			return True
 
 		return False
