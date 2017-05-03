@@ -7,9 +7,11 @@ from time import time
 from tkinter import *
 
 
-# Person class
-# Represents a person on a bridge
 class Person:
+    """ Person class
+
+        Represents a person on a bridge"""
+
     def __init__(self, person, walking_speed):
         """Initializes the person Class
 
@@ -138,7 +140,7 @@ class Bridge:
         # Make button to confirm drop down menu
         # set_walking_speed = lambda: self.set_walking_speed(default_walking_speed.get())
         speed_button = Button(self.root, text='Set Walking Speed',
-                              command=self.set_walking_speed(default_walking_speed.get()))
+                              command=lambda: self.set_walking_speed(default_walking_speed.get()))
         speed_button.grid(row=1, column=0)
 
         # Make Algorithm Choice #
@@ -149,7 +151,8 @@ class Bridge:
         algorithm.grid(row=0, column=1)
         # Make button to confirm drop down menu
         # set_algorithm = lambda: self.set_algorithm(default_algorithm.get())
-        algorithm_button = Button(self.root, text='Set Algorithm', command=self.set_algorithm(default_algorithm.get()))
+        algorithm_button = Button(self.root, text='Set Algorithm',
+                                  command=lambda: self.set_algorithm(default_algorithm.get()))
         algorithm_button.grid(row=1, column=1)
 
         # Make number of nodes Choice #
@@ -521,7 +524,7 @@ class Bridge:
         self.count = count
 
         # Set max count to 100 (so there isn't lag)
-        if int(self.count) > 100:  # TODO: maybe
+        if int(self.count) > 100:
             self.count = 100
 
         # Add more people
